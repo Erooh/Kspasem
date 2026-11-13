@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+<script>document.documentElement.classList.add('photo-pending');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Kspasem</title>
+<meta name="theme-color" content="#03100a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kspasem">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== Firebase (Premium status check) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<div class="app-lock-screen" id="appLockScreen">
+  <div class="app-lock-back" id="lockBackBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+  </div>
+
+  <div class="app-lock-icon-wrap">
+    <div class="app-lock-icon-glow"></div>
+    <div class="app-lock-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#e8b84b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px;">
+        <rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/>
+        <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="app-lock-title" id="lockTitle">Մուտքագրիր PIN կոդը</div>
+  <div class="app-lock-subtitle" id="lockSubtitle">4-նիշանոց գաղտնաբառ</div>
+
+  <div class="app-lock-dots" id="lockDots">
+    <span></span><span></span><span></span><span></span>
+  </div>
+  <div class="app-lock-error" id="lockError"></div>
+  <div class="app-lock-keypad" id="lockKeypad">
+    <button type="button" data-k="1">1</button>
+    <button type="button" data-k="2">2</button>
+    <button type="button" data-k="3">3</button>
+    <button type="button" data-k="4">4</button>
+    <button type="button" data-k="5">5</button>
+    <button type="button" data-k="6">6</button>
+    <button type="button" data-k="7">7</button>
+    <button type="button" data-k="8">8</button>
+    <button type="button" data-k="9">9</button>
+    <button type="button" data-k="face" id="lockFaceIdBtn" style="visibility:hidden;">🙂</button>
+    <button type="button" data-k="0">0</button>
+    <button type="button" data-k="back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h9.5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6.5-7Z"/><path d="M14.5 10 10.5 14M10.5 10l4 4"/></svg>
+    </button>
+  </div>
+
+  <div class="app-lock-footer">
+    <div class="app-lock-footer-line"></div>
+    <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="app-lock-footer-line"></div>
+  </div>
+</div>
+
+<audio id="bgMusic" loop></audio>
+
+<div class="splash" id="splash">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <div class="content">
+    <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+      <div class="ring"></div>
+      <div class="logo-wrap">
+        <img src="icons/logo.png" alt="Logo">
+      </div>
+    </div>
+
+    <div class="loading">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+
+  <div class="brand-mark">
+    <span>Բեռնվում է</span>
+  </div>
+</div>
+
+<div class="onboarding-screen" id="onboardingScreen">
+  <div class="onb-slides" id="onbSlides">
+
+    <div class="onb-slide has-photo active" data-index="0" style="background-image:url('images/onboarding-0.png')">
+      <div class="onb-slide-inner">
+        <div class="onb-logo-wrap">
+          <img src="icons/logo.png" alt="Logo">
+        </div>
+        <div class="onb-title">Բարի գալուստ</div>
+        <div class="onb-text">Այս հավելվածը ստեղծված է քեզ նման սպասող մարդկանց համար՝ ամեն օրը ավելի մոտ ու իմաստալից դարձնելու համար։</div>
+      </div>
+    </div>
+
+    <div class="onb-slide has-photo" data-index="1" style="background-image:url('images/onboarding-1.png')">
+      <div class="onb-slide-inner">
+        <div class="onb-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;color:#8bb96e;">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="3"/>
+            <path d="M3.5 9.5h17M8 3v3.5M16 3v3.5"/>
+            <rect x="7.3" y="12.3" width="2.4" height="2.4" rx="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </div>
+        <div class="onb-title">Հաշվիր յուրաքանչյուր օրը</div>
+        <ul class="onb-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+            Օրերի հաշվիչ մինչև հանդիպել
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+            Ծառայության վայրի ու եղանակի ցուցադրում
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="onb-slide has-photo" data-index="2" style="background-image:url('images/onboarding-2.jpg')">
+      <div class="onb-slide-inner">
+        <div class="onb-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;color:#8bb96e;">
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <path d="m4 6 8 7 8-7"/>
+          </svg>
+        </div>
+        <div class="onb-title">Պահպանիր հիշողությունները</div>
+        <ul class="onb-features">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+            Լուսանկարներ, տեսանյութեր, ձայնագրություններ
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+            Նամակներ ու անձնական գրառումներ
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+            Ժամանակի կապսուլա, որը բացվում է միայն զորացրման
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="onb-slide has-photo" data-index="3" style="background-image:url('images/onboarding-3.png')">
+      <div class="onb-slide-inner">
+        <div class="onb-icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;color:#8bb96e;">
+            <path d="M3 11.5L12 4l9 7.5"/>
+            <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/>
+          </svg>
+        </div>
+        <div class="onb-title">Ամեն օրը մեկ քայլ է ավելի մոտ</div>
+        <div class="onb-text">Սկսենք հաշվել ձեր ճանապարհը դեպի հանդիպում։</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="onb-dots" id="onbDots"></div>
+
+  <div class="onb-footer">
+    <button class="onb-btn" id="onbNextBtn" type="button">Շարունակել</button>
+  </div>
+</div>
+
+<div class="setup scrollable" id="setup">
+  <div class="setup-hero"></div>
+  <div class="setup-heading">
+    <div class="setup-title">Զինվորի<br>տվյալները</div>
+    <div class="setup-title-accent"></div>
+    <div class="setup-sub">Լրացրու տվյալները՝ վերադարձի ժամանակը ճշգրիտ հաշվարկելու համար։</div>
+  </div>
+  <div class="glass-card">
+    <div class="icon-field">
+      <div class="field-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+      </div>
+      <div class="field-body">
+        <label for="soldierName">Զինվորի անուն</label>
+        <input type="text" id="soldierName" placeholder="Օր․ Արմեն" style="width:100%; box-sizing:border-box; padding:13px 16px; border-radius:14px; border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.06); background-color:rgba(255,255,255,0.06); color:#fff; -webkit-text-fill-color:#fff; font-size:16px; font-family:inherit; outline:none; -webkit-appearance:none; appearance:none; box-shadow:none;">
+      </div>
+    </div>
+
+    <div class="icon-field">
+      <div class="field-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      </div>
+      <div class="field-body">
+        <label for="startDate">Մեկնման օր</label>
+        <div class="date-display" id="startDisplay">
+          <span class="date-placeholder" id="startPlaceholder">Ընտրել ամսաթիվ</span>
+          <span class="date-value" id="startValue"></span>
+          <input type="date" id="startDate" class="date-hidden">
+        </div>
+      </div>
+    </div>
+
+    <div class="icon-field">
+      <div class="field-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+      </div>
+      <div class="field-body">
+        <label for="returnDate">Վերադարձի օր</label>
+        <div class="date-display" id="returnDisplay">
+          <span class="date-placeholder" id="returnPlaceholder">Ընտրել ամսաթիվ</span>
+          <span class="date-value" id="returnValue"></span>
+          <input type="date" id="returnDate" class="date-hidden">
+        </div>
+      </div>
+    </div>
+
+    <button class="continue-btn" id="continueBtn" disabled>
+      <span>Շարունակել</span>
+    </button>
+  </div>
+</div>
+
+<div class="countdown scrollable" id="countdown">
+  <div id="notifBell" style="position:absolute; top:calc(26px + env(safe-area-inset-top, 0px)); right:24px; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:5;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+    <span id="notifDot" style="display:none; position:absolute; top:1px; right:1px; width:8px; height:8px; border-radius:50%; background:#e0897a; border:1.5px solid var(--brand-deep);"></span>
+  </div>
+  <div class="home-header">
+    <div class="home-header-label">Դու սպասում ես</div>
+    <div class="home-header-name" id="cdName" style="display:flex; align-items:center; gap:8px; justify-content:flex-start;">
+      <span id="homeAvatar"></span>
+      <img id="premiumBadgeIcon" src="icons/premium-badge.png" alt="Premium" style="display:none; height:1.5em; vertical-align:middle;">
+      <span id="cdNameText">—</span>
+    </div>
+    <div id="coupleLinkedIndicator" style="display:none; align-items:center; justify-content:flex-start; gap:5px; margin-top:6px; color:#8bb96e; font-size:11.5px; font-weight:600;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#8bb96e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      <span>Կապակցված է</span>
+    </div>
+  </div>
+
+  <div class="progress-card" id="progressCardBtn" style="cursor:pointer;">
+    <div class="progress-footer">
+      <span id="statPassedLabel">0 օր անցել է</span>
+      <span id="statRemainingLabel">0 օր մնացել է</span>
+    </div>
+
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressBarFill"></div>
+      <div class="progress-bar-label">
+        <span class="progress-percent" id="percentLeft">0%</span>
+      </div>
+    </div>
+
+    <div class="dhms-viewport" id="dhmsViewport">
+      <div class="dhms-track" id="dhmsTrack">
+        <div class="dhms-page">
+          <div class="dhms-mode-label">Մնացել է</div>
+          <div class="dhms-row">
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsYearsRemaining">0</div>
+              <div class="dhms-lbl">տարի</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsMonthsRemaining">0</div>
+              <div class="dhms-lbl">ամիս</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsDaysRemaining">0</div>
+              <div class="dhms-lbl">օր</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsHoursRemaining">00</div>
+              <div class="dhms-lbl">ժամ</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsMinutesRemaining">00</div>
+              <div class="dhms-lbl">րոպե</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsSecondsRemaining">00</div>
+              <div class="dhms-lbl">վայրկյան</div>
+            </div>
+          </div>
+        </div>
+        <div class="dhms-page">
+          <div class="dhms-mode-label">Անցել է</div>
+          <div class="dhms-row">
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsYearsElapsed">0</div>
+              <div class="dhms-lbl">տարի</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsMonthsElapsed">0</div>
+              <div class="dhms-lbl">ամիս</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsDaysElapsed">0</div>
+              <div class="dhms-lbl">օր</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsHoursElapsed">00</div>
+              <div class="dhms-lbl">ժամ</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsMinutesElapsed">00</div>
+              <div class="dhms-lbl">րոպե</div>
+            </div>
+            <div class="dhms-sep">:</div>
+            <div class="dhms-item">
+              <div class="dhms-num" id="dhmsSecondsElapsed">00</div>
+              <div class="dhms-lbl">վայրկյան</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dhms-dots" id="dhmsDots">
+      <span class="dhms-dot active" data-mode="remaining"></span>
+      <span class="dhms-dot" data-mode="elapsed"></span>
+    </div>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-text">
+      <span class="quote-mark">"</span>
+      <p id="dailyQuote">Ամեն անցնող օրը քեզ մոտեցնում է տուն։</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="milestone-toast" id="milestoneToast"></div>
+
+<div class="day-celebrate" id="dayCelebrateOverlay">
+  <div class="dc-bg" id="dcBg"></div>
+  <div class="dc-bg-shade"></div>
+
+  <div class="dc-card">
+    <div class="dc-card-top">
+      <div class="dc-cal-icon" id="dcIconWrap">
+        <img src="images/day-celebrate-icon.png" style="width:100%; height:100%; object-fit:contain;">
+      </div>
+      <div class="dc-card-toptext">
+        <div class="dc-line-small" id="dcLine1">Դու ապրեցիր</div>
+        <div class="dc-line-big" id="dcLine2">ՄԵԿ ՕՐ</div>
+        <div class="dc-line-small" id="dcLine3">քո զինվորին սպասելով <span class="dc-heart">♥</span></div>
+      </div>
+    </div>
+
+    <div class="dc-divider"></div>
+
+    <div class="dc-sub" id="dcSub">Շարունակիր նույն սիրով.<br>Ամեն օր մեզ ավելի մոտեցնում է հանդիպմանը <span class="dc-heart">♥</span></div>
+
+    <button class="dc-continue-btn" id="dcCloseBtn" type="button">
+      <svg class="dc-heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20.5s-8-5.2-8-11.2a5.3 5.3 0 0 1 9.5-3.3A5.3 5.3 0 0 1 20 9.3c0 6-8 11.2-8 11.2Z"/>
+      </svg>
+      <span id="dcBtnLabel">Փակել</span>
+    </button>
+  </div>
+</div>
+
+<div class="myprogress-screen scrollable" id="myProgressScreen">
+  <div class="mp-wrap">
+    <div class="goals-header">
+      <div class="goals-back" id="mpBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="goals-title">Իմ առաջընթացը</div>
+    </div>
+
+    <div class="mp-ring-wrap">
+      <svg class="mp-ring-svg" viewBox="0 0 152 152">
+        <circle class="mp-ring-bg" cx="76" cy="76" r="71"/>
+        <circle class="mp-ring-fill" id="mpRingFill" cx="76" cy="76" r="71"/>
+      </svg>
+      <div class="mp-ring-center">
+        <div class="mp-ring-percent" id="mpRingPercent">0%</div>
+        <div class="mp-ring-sub">ավարտված</div>
+      </div>
+    </div>
+
+    <div class="mp-summary"><span id="mpSumPassed">0 օր անցել է</span><span id="mpSumRemaining">0 օր մնացել է</span></div>
+    <div class="mp-bar"><div class="mp-bar-fill" id="mpBarFill"></div></div>
+
+    <div class="mp-split">
+      <div class="mp-col">
+        <div class="mp-col-title">Անցել է</div>
+        <div class="mp-col-item"><b id="mpPY">0</b><span>տարի</span></div>
+        <div class="mp-col-item"><b id="mpPM">0</b><span>ամիս</span></div>
+        <div class="mp-col-item"><b id="mpPW">0</b><span>շաբաթ</span></div>
+        <div class="mp-col-item"><b id="mpPD">0</b><span>օր</span></div>
+      </div>
+      <div class="mp-col">
+        <div class="mp-col-title">Մնացել է</div>
+        <div class="mp-col-item"><b id="mpRY">0</b><span>տարի</span></div>
+        <div class="mp-col-item"><b id="mpRM">0</b><span>ամիս</span></div>
+        <div class="mp-col-item"><b id="mpRW">0</b><span>շաբաթ</span></div>
+        <div class="mp-col-item"><b id="mpRD">0</b><span>օր</span></div>
+      </div>
+      <span id="mpPassed" style="display:none"></span><span id="mpRemaining" style="display:none"></span>
+    </div>
+
+    <span id="mpTotal" style="display:none"></span><span id="mpThisWeek" style="display:none"></span>
+
+    <div class="mp-chart-card">
+      <div class="mp-chart-title">Ծառայության ամիսները</div>
+      <div class="mp-months" id="mpChart"></div>
+      <div class="mp-smart" id="mpSmart"></div>
+    </div>
+
+    <div class="achievements" id="goalsPreview" style="cursor:pointer; margin-top:14px;">
+      <div class="ach-title">Նպատակներ</div>
+      <div class="ach-grid" id="achGrid"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="goals-screen scrollable" id="goalsScreen">
+  <div class="goals-wrap">
+    <div class="goals-header">
+      <div class="goals-back" id="goalsBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="goals-title">Նպատակներ</div>
+    </div>
+    <div class="goals-list" id="goalsList"></div>
+  </div>
+</div>
+
+<div class="settings scrollable" id="settingsScreen">
+  <div class="settings-card">
+    <div class="settings-title">Կարգավորումներ</div>
+
+    <div class="settings-group">
+      <div class="settings-row" id="premiumBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon" style="background:linear-gradient(135deg,#e8b84b,#c9932c);">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/>
+              <path d="M5 20h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+            </svg>
+          </div>
+          <span>Պրեմիում</span>
+        </div>
+        <span id="premiumStatusLabel" style="color:rgba(0,0,0,0.52); font-size:12px; background:rgba(255,255,255,0.66); padding:3px 9px; border-radius:20px;">Ակտիվացնել</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(0,0,0,0.52);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row" id="changePhotoBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <circle cx="8.5" cy="9" r="1.7"/>
+              <path d="M21 15.5l-5.4-5.4a1.5 1.5 0 0 0-2.1 0L4 19"/>
+            </svg>
+          </div>
+          <span>Փոխել գլխավոր նկարը</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(0,0,0,0.52);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+        <input type="file" id="photoInput" accept="image/*" style="display:none">
+      </div>
+      <div style="padding:14px; display:flex; justify-content:center;">
+        <div class="photo-squircle" id="photoSquircle"></div>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/>
+              <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+            </svg>
+          </div>
+          <span>Փակել Face ID / PIN կոդով</span>
+        </div>
+        <div class="toggle" id="lockToggle"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row" id="openTimeSettingsBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="8.5"/>
+              <path d="M12 7.5V12l3 2"/>
+            </svg>
+          </div>
+          <span>Ժամանակի կարգավորումներ</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(0,0,0,0.52);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row" id="favSongBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l11-2v13"/>
+              <circle cx="6" cy="18" r="3"/>
+              <circle cx="17" cy="16" r="3"/>
+            </svg>
+          </div>
+          <span id="favSongLabel">Սիրելի երգ</span>
+        </div>
+        <span id="favSongStatus" style="color:rgba(0,0,0,0.52); font-size:12px;">Ընտրել</span>
+        <input type="file" id="favSongInput" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac" style="display:none">
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 5 6 9H3v6h3l5 4V5Z"/>
+              <path d="M17 9l6 6M23 9l-6 6"/>
+            </svg>
+          </div>
+          <span>Անջատել երգը</span>
+        </div>
+        <div class="toggle" id="muteSongToggle"><div class="toggle-knob"></div></div>
+      </div>
+
+      <div class="settings-row" id="deleteSongBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon" style="background:#a4453f;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m2 0-1 13a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2L7 7"/>
+            </svg>
+          </div>
+          <span>Ջնջել երգը</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row" id="aboutBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 16v-4.5M12 8h.01"/>
+            </svg>
+          </div>
+          <span>Մեր մասին</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(0,0,0,0.52);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+
+      <div class="settings-row" id="telegramBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon" style="background:#2AABEE;">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M21.05 3.16 2.9 10.36c-1.24.5-1.23 1.2-.23 1.5l4.63 1.44 1.8 5.5c.22.6.36.85.75.85.3 0 .43-.14.6-.3l1.7-1.65 3.65 2.7c.67.37 1.15.18 1.32-.62l2.4-11.3c.25-1.05-.4-1.53-1.47-1.32Zm-11.3 9.9-.4 3.85-1.5-4.7 8.2-5.1c.4-.24.77-.1.47.16Z"/>
+            </svg>
+          </div>
+          <span>Telegram</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(0,0,0,0.52);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="settings-group" style="margin-top:14px;">
+      <div class="settings-row danger-row" id="resetDataBtn" style="cursor:pointer;">
+        <div class="settings-row-label">
+          <div class="settings-icon icon-danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 3-6.7"/>
+              <path d="M3 4v5h5"/>
+            </svg>
+          </div>
+          <span>Զրոյացնել տվյալները</span>
+        </div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;color:rgba(255,107,94,0.6);flex-shrink:0;">
+          <path d="M9 5l7 7-7 7"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="reset-modal" id="resetModal">
+  <div class="reset-modal-card">
+    <div class="reset-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 9v4M12 17h.01"/>
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+      </svg>
+    </div>
+    <div class="reset-modal-title">Զրոյացնե՞լ տվյալները</div>
+    <div class="reset-modal-sub">Համոզվա՞ծ ես, որ ուզում ես ջնջել բոլոր տվյալները։ Այս գործողությունը հնարավոր չէ հետարկել։</div>
+    <div class="reset-modal-actions">
+      <button class="reset-btn reset-btn-no" id="resetNoBtn" type="button">Ոչ</button>
+      <button class="reset-btn reset-btn-yes" id="resetYesBtn" type="button">Այո</button>
+    </div>
+  </div>
+</div>
+
+<div class="reset-modal" id="bgProposalModal">
+  <div class="reset-modal-card">
+    <div class="reset-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 5h16v14H4z"/><path d="m4 15 5-5 4 4 3-3 4 4"/><circle cx="9" cy="9" r="1.5"/>
+      </svg>
+    </div>
+    <div class="reset-modal-title">Զույգդ առաջարկում է նոր ֆոն</div>
+    <div class="reset-modal-sub">Ուզու՞մ ես ընդունել այս ֆոնի նկարը, որ երկուսիդ մոտ էլ նույնը լինի։</div>
+    <div class="reset-modal-actions">
+      <button class="reset-btn reset-btn-no" id="bgProposalNoBtn" type="button">Ոչ</button>
+      <button class="reset-btn reset-btn-yes" id="bgProposalYesBtn" type="button">Ընդունել</button>
+    </div>
+  </div>
+</div>
+
+<div class="reset-modal" id="coupleUnlinkModal">
+  <div class="reset-modal-card">
+    <div class="reset-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 9v4M12 17h.01"/>
+        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+      </svg>
+    </div>
+    <div class="reset-modal-title">Անջատե՞լ Couple Sync-ը</div>
+    <div class="reset-modal-sub">Կապակցված ժամանակահատվածում ավելացրած հիշողությունները (նամակներ, նկարներ) կջնջվեն երկուսիդ մոտից էլ։ Կապակցումից առաջ եղած տվյալները կմնան անձեռնմխելի։</div>
+    <div class="reset-modal-actions">
+      <button class="reset-btn reset-btn-no" id="coupleUnlinkNoBtn" type="button">Ոչ</button>
+      <button class="reset-btn reset-btn-yes" id="coupleUnlinkYesBtn" type="button">Անջատել</button>
+    </div>
+  </div>
+</div>
+
+<div class="reset-modal" id="memInfoModal">
+  <div class="reset-modal-card" style="text-align:left; max-height:75vh; display:flex; flex-direction:column; background:rgba(255,255,255,0.08); backdrop-filter:blur(22px) saturate(140%); -webkit-backdrop-filter:blur(22px) saturate(140%);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-shrink:0;">
+      <div style="color:#fff; font-weight:700; font-size:15px;">Ի՞նչ է ժամանակի կապսուլան</div>
+      <span id="memInfoCloseBtn" style="color:rgba(255,255,255,0.6); font-size:18px; cursor:pointer;">✕</span>
+    </div>
+    <div class="scrollable" style="overflow-y:auto; min-height:0; color:rgba(255,255,255,0.88); font-size:13.5px; line-height:1.6; -webkit-overflow-scrolling:touch;">
+      <p style="margin:0 0 10px;">Ժամանակի կապսուլան քո և քո սիրելիների հիշողությունների ապահով պահոցն է։ Այստեղ կարող ես պահել լուսանկարներ, ձայնագրություններ, նամակներ և տեսանյութեր։</p>
+      <p style="margin:0 0 10px;">Այն նախատեսված է ծառայության ընթացքում կուտակած ամենաթանկ պահերը մեկ տեղում հավաքելու և դրանք զորացրման օրը միասին բացելու համար։</p>
+      <p style="margin:0;">Մինչև այդ օրը կապսուլան փակ է. դու կարող ես միայն ավելացնել նոր հիշողություններ։ Զորացրման օրը այն կբացվի, և կարող եք վերհիշել ամեն ինչ միասին ♥️🪖</p>
+    </div>
+  </div>
+</div>
+
+<div class="reset-modal" id="notifModal">
+  <div class="reset-modal-card" style="border-color:rgba(232,184,75,0.35); text-align:left; max-height:70vh; display:flex; flex-direction:column; background:rgba(255,255,255,0.08); backdrop-filter:blur(22px) saturate(140%); -webkit-backdrop-filter:blur(22px) saturate(140%);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-shrink:0;">
+      <div style="color:#fff; font-weight:700; font-size:15px;">Ծանուցումներ</div>
+      <span id="notifCloseBtn" style="color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer;">✕</span>
+    </div>
+    <div id="notifList" class="scrollable" style="display:flex; flex-direction:column; gap:10px; overflow-y:auto; flex:1; min-height:0; -webkit-overflow-scrolling:touch;"></div>
+  </div>
+</div>
+
+<div class="reset-modal" id="adModal">
+  <div class="ad-modal-card">
+    <span class="ad-modal-label">Գովազդ</span>
+    <div class="ad-modal-timer" id="adModalTimer">5</div>
+    <button type="button" class="ad-modal-close" id="adModalCloseBtn" style="display:none;">✕</button>
+    <img class="ad-modal-image" id="adModalImage" src="" alt="Գովազդ">
+  </div>
+</div>
+
+<div class="about-screen scrollable" id="aboutScreen">
+  <div class="goals-wrap">
+    <div class="goals-header">
+      <div class="goals-back" id="aboutBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="goals-title">Մեր մասին</div>
+    </div>
+    <div class="settings-card" style="background:rgba(255,255,255,0.66); backdrop-filter:blur(22px); border:1px solid rgba(120,95,60,0.15); border-radius:24px; padding:22px; margin-bottom:12px;">
+      <div style="color:rgba(0,0,0,0.92); font-weight:700; font-size:14px; margin-bottom:8px;">Մեր մասին</div>
+      <p style="color:rgba(0,0,0,0.92); font-size:14px; line-height:1.5; margin-bottom:8px;">
+        Kspasem-ը ստեղծվել է նրանց համար, ովքեր սպասում են իրենց զինվորին։
+      </p>
+      <p style="color:rgba(0,0,0,0.72); font-size:13px; line-height:1.5; margin-bottom:8px;">
+        Հավելվածի միջոցով կարող եք հեշտությամբ հետևել զինվորի ծառայության ընթացքին և տեսնել, թե քանի օր է մնացել նրա վերադարձին։
+      </p>
+      <p style="color:rgba(0,0,0,0.72); font-size:13px; line-height:1.5;">
+        Մեր նպատակն է սպասելու այս երկար ճանապարհը դարձնել մի փոքր ավելի հեշտ, հարմար և հիշարժան։
+      </p>
+      <p style="color:rgba(0,0,0,0.47); font-size:11.5px; margin-top:12px;">Տարբերակ 1.0.0</p>
+    </div>
+    <div class="settings-card" style="background:rgba(255,255,255,0.66); backdrop-filter:blur(22px); border:1px solid rgba(120,95,60,0.15); border-radius:24px; padding:22px;">
+      <div style="color:rgba(0,0,0,0.92); font-weight:700; font-size:14px; margin-bottom:8px;">Գաղտնիություն</div>
+      <p style="color:rgba(0,0,0,0.72); font-size:13px; line-height:1.5;">
+        Ձեր անձնական տվյալները մեզ համար կարևոր են։ Kspasem-ում հավելվածում մուտքագրված տվյալները մնում են միայն ձեր հեռախոսում և չեն ուղարկվում կամ պահպանվում մեր սերվերներում։
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="about-screen scrollable" id="premiumScreen">
+  <div class="goals-wrap">
+    <div class="goals-header">
+      <div class="goals-back" id="premiumBackBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="goals-title">Պրեմիում</div>
+    </div>
+
+    <div class="settings-card" style="background:rgba(255,255,255,0.66); backdrop-filter:blur(22px); border:1px solid rgba(232,184,75,0.35); border-radius:24px; padding:22px; margin-bottom:14px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <div class="settings-icon" style="background:transparent; width:52px; height:52px;">
+          <img src="icons/premium-badge.png" alt="Premium" style="width:52px;height:52px;object-fit:contain;">
+        </div>
+        <div>
+          <div style="color:rgba(0,0,0,0.92); font-weight:700; font-size:15px;" id="premiumHeaderStatus">Ստուգում ենք...</div>
+          <div style="color:rgba(0,0,0,0.62); font-size:12px;">Քո կոդը՝ <span id="premiumDeviceCode" style="color:#e8b84b; font-weight:700;">—</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg, rgba(232,184,75,0.18), rgba(232,184,75,0.08)); border:1px solid rgba(232,184,75,0.4); border-radius:14px; padding:12px; margin-bottom:16px;">
+        <span style="color:#e8b84b; font-weight:800; font-size:16px;">1000 ՀՀ դրամ</span>
+        <span style="color:rgba(0,0,0,0.47); font-size:13px;">•</span>
+        <span style="color:rgba(0,0,0,0.92); font-weight:700; font-size:14px;">1 տարի 6 ամիս</span>
+      </div>
+
+      <div id="premiumExpiryRow" style="display:none; align-items:center; gap:8px; background:rgba(255,255,255,0.66); border-radius:12px; padding:10px 12px; margin-bottom:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e8b84b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <span style="color:rgba(0,0,0,0.78); font-size:12.5px;">Ավարտվում է՝ <span id="premiumExpiryDate" style="color:rgba(0,0,0,0.92); font-weight:600;">—</span></span>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="color:#e8b84b;">✦</span>
+          <span style="color:rgba(0,0,0,0.78); font-size:13.5px; line-height:1.4;">Անսահմանափակ հիշողություններ ժամանակի կապսուլայում</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="color:#e8b84b;">✦</span>
+          <span style="color:rgba(0,0,0,0.78); font-size:13.5px; line-height:1.4;">Հատուկ տոնական էֆեկտ հենց զորացրման օրը</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="color:#e8b84b;">✦</span>
+          <span style="color:rgba(0,0,0,0.78); font-size:13.5px; line-height:1.4;">Couple Sync՝ համաժամացում զինվորի հետ</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="color:#e8b84b;">✦</span>
+          <span style="color:rgba(0,0,0,0.78); font-size:13.5px; line-height:1.4;"><img src="icons/premium-badge.png" alt="Premium" style="width:26px;height:26px;vertical-align:-8px;"> Պրեմիում կրծքանշան</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:flex-start;">
+          <span style="color:#e8b84b;">✦</span>
+          <span style="color:rgba(0,0,0,0.78); font-size:13.5px; line-height:1.4;">Զինվորի անվան անսահմանափակ փոփոխում</span>
+        </div>
+      </div>
+
+      <button type="button" id="premiumRecheckBtn" style="width:100%; padding:13px; border-radius:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; border:1px solid rgba(232,184,75,0.5); background:rgba(232,184,75,0.15); color:#e8b84b;">Ստուգել կրկին</button>
+    </div>
+
+    <div class="settings-card" id="coupleSyncCard" style="background:rgba(255,255,255,0.66); backdrop-filter:blur(22px); border:1px solid rgba(120,95,60,0.15); border-radius:24px; padding:22px; margin-bottom:14px;">
+      <div style="color:rgba(0,0,0,0.92); font-weight:700; font-size:14px; margin-bottom:4px;">Couple Sync</div>
+      <div style="color:rgba(0,0,0,0.67); font-size:12.5px; line-height:1.5; margin-bottom:14px;">Եթե զինվորդ էլ ունի Kspasem, կապակցիր ձեր հավելվածները՝ որ երկուսդ էլ տեսնեք նույն ամսաթվերը և գրառումները։</div>
+
+      <div id="coupleLinkedBox" style="display:none; align-items:center; gap:8px; background:rgba(139,185,110,0.15); border:1px solid rgba(139,185,110,0.4); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3f7d4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;flex-shrink:0;"><path d="M4 12l6 6L20 6"/></svg>
+        <span style="color:#3f7d4e; font-size:12.5px; font-weight:600;">Կապակցված է</span>
+        <span id="coupleUnlinkBtn" style="margin-left:auto; color:rgba(0,0,0,0.52); font-size:11.5px; cursor:pointer; text-decoration:underline;">Անջատել</span>
+      </div>
+
+      <div id="coupleIncomingBox" style="display:none; flex-direction:column; gap:10px; background:rgba(232,184,75,0.12); border:1px solid rgba(232,184,75,0.4); border-radius:14px; padding:14px; margin-bottom:12px;">
+        <div style="color:rgba(0,0,0,0.92); font-size:13px; line-height:1.4;"><span id="coupleIncomingFrom" style="color:#e8b84b; font-weight:700;">—</span> ուզում է կապակցվել քեզ հետ</div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" id="coupleAcceptBtn" style="flex:1; padding:11px; border-radius:12px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; border:none; background:#3f7d4e; color:#0f180b;">Հաստատել</button>
+          <button type="button" id="coupleDeclineBtn" style="flex:1; padding:11px; border-radius:12px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; border:1px solid rgba(224,137,122,0.5); background:rgba(224,137,122,0.15); color:#e0897a;">Մերժել</button>
+        </div>
+      </div>
+
+      <div id="couplePendingBox" style="display:none; align-items:center; gap:8px; background:rgba(255,255,255,0.66); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+        <span style="color:rgba(0,0,0,0.78); font-size:12.5px;">Հայտն ուղարկվեց, սպասում ենք հաստատման...</span>
+        <span id="couplePendingCancelBtn" style="margin-left:auto; color:rgba(0,0,0,0.52); font-size:11.5px; cursor:pointer; text-decoration:underline; flex-shrink:0;">Չեղարկել</span>
+      </div>
+
+      <div id="coupleLinkForm">
+        <input type="text" id="couplePartnerCodeInput" placeholder="Զինվորի կոդը (օր. AB12CD)" maxlength="8" style="width:100%; box-sizing:border-box; padding:12px 14px; border-radius:14px; border:1px solid rgba(120,95,60,0.15); background:rgba(255,255,255,0.66); color:rgba(0,0,0,0.92); -webkit-text-fill-color:#fff; font-size:16px; font-family:inherit; outline:none; -webkit-appearance:none; appearance:none; text-transform:uppercase; margin-bottom:10px;">
+        <button type="button" id="coupleLinkBtn" style="width:100%; padding:13px; border-radius:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; border:none; background:var(--brand-light); color:rgba(0,0,0,0.92);">Կապակցվելու հայտ ուղարկել</button>
+      </div>
+    </div>
+
+    <div class="settings-card" style="background:rgba(255,255,255,0.66); backdrop-filter:blur(22px); border:1px solid rgba(120,95,60,0.15); border-radius:24px; padding:22px;">
+      <div style="color:rgba(0,0,0,0.92); font-weight:700; font-size:14px; margin-bottom:10px;">Պրեմիումի ակտիվացում</div>
+      <ol style="color:rgba(0,0,0,0.78); font-size:13px; line-height:1.7; padding-left:18px;">
+        <li>Պրեմիումի արժեքը՝ 1000 ՀՀ դրամ, ժամկետը՝ 1 տարի 6 ամիս։</li>
+        <li>Կապվեք ադմինի հետ։ Ադմինը կտրամադրի վճարման տվյալները։</li>
+        <li>Կատարեք վճարումը Idram կամ Telcell-ով։</li>
+        <li>Վճարումից հետո ադմինը կհաստատի վճարումը և կակտիվացնի ձեր Պրեմիումը։</li>
+      </ol>
+      <button type="button" id="premiumTelegramBtn" style="width:100%; margin-top:14px; padding:13px; border-radius:14px; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; border:none; background:#2AABEE; color:rgba(0,0,0,0.92);">Գրել Telegram-ով</button>
+    </div>
+  </div>
+</div>
+
+<div class="memories-screen scrollable" id="memoriesScreen">
+  <div class="mem-wrap">
+    <div class="goals-header" style="display:flex; align-items:center; justify-content:space-between;">
+      <div class="goals-title">Ժամանակի կապսուլա</div>
+      <button type="button" id="memInfoBtn" class="mem-info-btn" aria-label="Ի՞նչ է ժամանակի կապսուլան">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 11v5.5"/><circle cx="12" cy="7.8" r=".6" fill="currentColor"/></svg>
+      </button>
+    </div>
+
+    <div class="mem-hero-space"></div>
+
+    <div class="mem-date-card">
+      <div class="mem-date-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><circle cx="9" cy="14.5" r=".6" fill="currentColor"/><circle cx="15" cy="14.5" r=".6" fill="currentColor"/><path d="M9.5 17.5c1.5 1 3.5 1 5 0"/></svg></div>
+      <div class="mem-date-text">
+        <div class="mem-date-label">Սպասում ենք մինչև</div>
+        <div class="mem-date-value" id="memDateValue">—</div>
+      </div>
+      <div class="mem-date-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      <div class="mem-date-sub">Մինչ այդ պահենք մեր հիշողությունները...
+        <span class="mem-date-emoji">♥️🪖</span>
+      </div>
+    </div>
+
+    <div class="mem-list">
+      <div class="mem-row">
+        <div class="mem-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.7"/><path d="M21 15.5l-5.4-5.4a1.5 1.5 0 0 0-2.1 0L4 19"/></svg></div>
+        <div class="mem-row-label">Լուսանկարներ</div>
+        <div class="mem-row-sub"><span class="mem-row-count" id="memCountPhoto">0</span> նկար</div>
+        <div class="mem-row-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      </div>
+      <div class="mem-row">
+        <div class="mem-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div>
+        <div class="mem-row-label">Ձայնագրություններ</div>
+        <div class="mem-row-sub"><span class="mem-row-count" id="memCountVoice">0</span> ձայնագրություն</div>
+        <div class="mem-row-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      </div>
+      <div class="mem-row">
+        <div class="mem-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6 8 7 8-7"/></svg></div>
+        <div class="mem-row-label">Նամակներ</div>
+        <div class="mem-row-sub"><span class="mem-row-count" id="memCountLetter">0</span> նամակ</div>
+        <div class="mem-row-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      </div>
+      <div class="mem-row">
+        <div class="mem-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-2.5v9L17 14"/></svg></div>
+        <div class="mem-row-label">Տեսանյութեր</div>
+        <div class="mem-row-sub"><span class="mem-row-count" id="memCountVideo">0</span> տեսանյութ</div>
+        <div class="mem-row-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      </div>
+      <div class="mem-row mem-row-wide">
+        <div class="mem-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7V3Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></svg></div>
+        <div class="mem-row-label">Գրառումներ</div>
+        <div class="mem-row-sub"><span class="mem-row-count" id="memCountNote">0</span> գրառում</div>
+        <div class="mem-row-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 5 7 7-7 7"/></svg></div>
+      </div>
+    </div>
+
+    <div class="mem-caption"></div>
+
+    <button class="mem-add-btn" id="memAddBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M12 5v14M5 12h14"/></svg>
+      Ավելացնել հիշողություն
+    </button>
+  </div>
+</div>
+
+<div class="mem-modal" id="memModal">
+  <div class="mem-modal-card">
+    <div class="mem-modal-title">Ի՞նչ ես ուզում ավելացնել</div>
+    <div class="mem-type-grid" id="memTypeGrid">
+      <div class="mem-type-btn" data-type="photo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="9" r="1.7"/><path d="M21 15.5l-5.4-5.4a1.5 1.5 0 0 0-2.1 0L4 19"/></svg>
+        Լուսանկար
+      </div>
+      <div class="mem-type-btn" data-type="voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        Ձայն
+      </div>
+      <div class="mem-type-btn" data-type="letter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6 8 7 8-7"/></svg>
+        Նամակ
+      </div>
+      <div class="mem-type-btn" data-type="video">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-2.5v9L17 14"/></svg>
+        Տեսանյութ
+      </div>
+      <div class="mem-type-btn" data-type="note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h8l4 4v14H7V3Z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></svg>
+        Գրառում
+      </div>
+    </div>
+
+    <div id="memFileField" style="display:none; margin-bottom:12px;">
+      <input type="file" id="memFileInput" multiple style="display:none">
+      <button type="button" id="memFilePickBtn" class="loc-save-btn" style="margin-bottom:0;">Ընտրել ֆայլեր (մինչև 5)</button>
+      <div id="memFileName" style="color:rgba(255,255,255,0.5); font-size:11.5px; margin-top:6px; text-align:center;"></div>
+    </div>
+
+    <textarea id="memTextField" placeholder="Գրիր այստեղ..." rows="3" style="display:none; width:100%; box-sizing:border-box; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); color:#fff; font-size:13.5px; font-family:inherit; outline:none; resize:none; margin-bottom:12px;"></textarea>
+
+    <input type="text" id="memCaptionField" placeholder="Վերնագիր (ոչ պարտադիր)" style="display:none; width:100%; box-sizing:border-box; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.07); color:#fff; font-size:13.5px; font-family:inherit; outline:none; margin-bottom:12px;">
+
+    <button class="mem-modal-confirm" id="memConfirmBtn" type="button">Ավելացնել</button>
+    <div class="mem-modal-cancel" id="memCancelBtn">Չեղարկել</div>
+  </div>
+</div>
+
+<div class="calendar-screen scrollable" id="calendarScreen">
+  <div class="cal-card">
+    <div class="cal-page-title">Օրացույց</div>
+
+    <div class="cal-legend">
+      <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#3b6fd1;"></span>Մեկնարկ</div>
+      <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#9fd177;"></span>Այսօր</div>
+      <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#3fae6a;"></span>Զորացրում</div>
+      <div class="cal-legend-item"><span class="cal-legend-dot" style="background:#a78bfa;"></span>Մեդալ</div>
+    </div>
+
+    <div class="cal-info-rows">
+      <div class="cal-info-row">
+        <div class="cal-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3.5" y="4.5" width="17" height="16" rx="2.5"/>
+            <path d="M3.5 9.5h17M8 3v3M16 3v3"/>
+          </svg>
+        </div>
+        <div class="cal-info-text">
+          <div class="cal-info-title">Ծառայության օր</div>
+          <div class="cal-info-sub" id="calServiceDay">—</div>
+        </div>
+        <div class="cal-info-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>
+        </div>
+      </div>
+
+      <div class="cal-info-row">
+        <div class="cal-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21Z"/>
+            <circle cx="12" cy="9.5" r="2.4"/>
+          </svg>
+        </div>
+        <div class="cal-info-text">
+          <div class="cal-info-title">Զորակոչ</div>
+          <div class="cal-info-sub" id="calStartInfo">—</div>
+        </div>
+      </div>
+
+      <div class="cal-info-row">
+        <div class="cal-info-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11.5L12 4l9 7.5"/>
+            <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/>
+          </svg>
+        </div>
+        <div class="cal-info-text">
+          <div class="cal-info-title">Վերադարձ</div>
+          <div class="cal-info-sub" id="calReturnInfo">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-days" id="calDays"></div>
+  </div>
+</div>
+
+<div class="time-settings scrollable" id="timeSettingsScreen">
+  <div class="goals-header">
+    <div class="goals-back" id="tsBackBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+    </div>
+    <div class="goals-title">Ժամանակի կարգավորումներ</div>
+  </div>
+
+  <div class="ts-rows">
+    <div class="ts-row" id="tsNameRow" style="cursor:pointer;">
+      <span>Զինվորի անունը</span>
+      <span style="display:flex; align-items:center; gap:6px;">
+        <span class="ts-value" id="tsNameValue">—</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e8b84b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      </span>
+    </div>
+    <div style="color:rgba(0,0,0,0.52); font-size:11px; margin:-4px 2px 2px;">Կարող ես փոխել 1 անգամ․ 👑 Պրեմիումով՝ անսահմանափակ</div>
+    <div id="tsNameEditBox" style="display:none; gap:8px; margin:10px 0 4px;">
+      <input type="text" id="tsNameInput" maxlength="30" style="flex:1; box-sizing:border-box; padding:12px 14px; border-radius:14px; border:1px solid rgba(120,95,60,0.15); background:rgba(255,255,255,0.66); color:rgba(0,0,0,0.92); font-size:14px; font-family:inherit; outline:none;">
+      <button type="button" id="tsNameSaveBtn" style="padding:0 16px; border-radius:14px; font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; border:none; background:var(--brand-light); color:rgba(0,0,0,0.92);">Պահել</button>
+    </div>
+    <div class="ts-row" id="tsStartRow">
+      <span>Զորակոչի ամսաթիվը</span>
+      <span class="ts-value" id="tsStartValue">—</span>
+      <input type="date" id="tsStartDate" class="date-hidden">
+    </div>
+    <div class="ts-row" id="tsReturnRow">
+      <span>Դեմբելի ամսաթիվը</span>
+      <span class="ts-value" id="tsReturnValue">—</span>
+      <input type="date" id="tsReturnDate" class="date-hidden">
+    </div>
+  </div>
+
+  <div class="ts-confirm" id="tsConfirm">Տվյալները թարմացվեցին</div>
+
+  <button class="ts-save" id="tsSaveBtn" type="button">Պահպանել</button>
+</div>
+
+<div class="dock" id="mainDock">
+  <div class="dock-inner">
+    <button class="dock-btn active" type="button" id="dockHome">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11.5L12 4l9 7.5"/>
+        <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/>
+      </svg>
+    </button>
+    <button class="dock-btn" type="button" id="dockCalendar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3.5" y="5" width="17" height="15.5" rx="3"/>
+        <path d="M3.5 9.5h17M8 3v3.5M16 3v3.5"/>
+        <rect x="7.3" y="12.3" width="2.4" height="2.4" rx="0.5" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+    <button class="dock-btn" type="button" id="dockMemories" style="position:relative;">
+      <span class="dock-new-badge">NEW</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="3" width="6" height="4" rx="1"/>
+        <path d="M9 6v2M15 6v2"/>
+        <path d="M7.5 8h9l1 11.5a2 2 0 0 1-2 2.2h-7a2 2 0 0 1-2-2.2L7.5 8Z"/>
+        <circle cx="12" cy="14" r="2.3"/>
+      </svg>
+    </button>
+    <button class="dock-btn" type="button" id="dockSettings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h9M17 6h3M4 12h3M9 12h11M4 18h13M19 18h1"/>
+        <circle cx="12" cy="6" r="2.1" fill="currentColor" stroke="none"/>
+        <circle cx="6" cy="12" r="2.1" fill="currentColor" stroke="none"/>
+        <circle cx="16" cy="18" r="2.1" fill="currentColor" stroke="none"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
