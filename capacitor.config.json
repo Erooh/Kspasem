@@ -1,0 +1,9 @@
+{
+  "appId": "com.kspasem.app",
+  "appName": "Kspasem",
+  "webDir": "www",
+  "android": { "backgroundColor": "#03100a" },
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_icon", "iconColor": "#7fb069" }
+  }
+}

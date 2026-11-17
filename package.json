@@ -1,0 +1,17 @@
+{
+  "name": "kspasem",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node copy-web.js",
+    "sync": "node copy-web.js && npx cap sync android",
+    "setup": "node copy-web.js && npx cap add android && node setup-android.js && npx cap sync android",
+    "open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0"
+  }
+}
